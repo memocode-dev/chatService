@@ -55,7 +55,7 @@
         console.log('Connected: ' + frame);
 
         // /chats 구독
-        stompClient.subscribe('/', (chatMessage) => {
+        stompClient.subscribe('/topic/chats', (chatMessage) => {
             console.log(chatMessage);
             showChatMessage(JSON.parse(chatMessage.body).content);
         });
@@ -100,7 +100,7 @@
 
     function sendMessage() {
         stompClient.publish({
-            destination: "/",
+            destination: "/topic/chats",
             body: JSON.stringify({'content': $("#content").val()})
         });
     }

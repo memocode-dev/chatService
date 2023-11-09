@@ -1,1 +1,13 @@
+spring:
+  profiles:
+    include: secrets
 
+custom:
+  stomp:
+    relay:
+      host: "SECRET"
+      port: 61613
+      client-username: "SECRET"
+      client-password: "SECRET"
+      system-username: "SECRET"
+      system-password: "SECRET"
