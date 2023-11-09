@@ -22,7 +22,15 @@ repositories {
 }
 
 dependencies {
+    // web
     implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    // spring-websocket, spring-messaging
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
+
+    // thymeleaf
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'

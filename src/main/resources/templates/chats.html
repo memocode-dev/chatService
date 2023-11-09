@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>채팅방</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.0.0/bundles/stomp.umd.min.js"></script>
+</head>
+<body>
+<div id="main-content" class="container">
+    <div class="row">
+        <div class="col-md-6">
+            <form class="form-inline">
+                <div class="form-group">
+                    <label for="connect">WebSocket:</label>
+                    <button id="connect" class="btn btn-default" type="submit">연결</button>
+                    <button id="disconnect" class="btn btn-default" type="submit" disabled="disabled">연결해제
+                    </button>
+                </div>
+            </form>
+        </div>
+        <div class="col-md-6">
+            <form class="form-inline">
+                <div class="form-group">
+                    <label for="content">메시지</label>
+                    <input type="text" id="content" class="form-control" placeholder="메시지를 작성해주세요">
+                </div>
+                <button id="send" class="btn btn-default" type="submit">보내기</button>
+            </form>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <table id="conversation" class="table table-striped">
+                <thead>
+                <tr>
+                    <th>메시지</th>
+                </tr>
+                </thead>
+                <tbody id="messages">
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<script>
+    // client 생성
+    const stompClient = new StompJs.Client({
+        brokerURL: 'ws://localhost:8080/ws'
+    });
+
+    // 연결 완료 handler
+    stompClient.onConnect = (frame) => {
+        setConnected(true);
+        console.log('Connected: ' + frame);
+
+        // /chats 구독
+        stompClient.subscribe('/', (chatMessage) => {
+            console.log(chatMessage);
+            showChatMessage(JSON.parse(chatMessage.body).content);
+        });
+    };
+
+    // websocket error handler
+    stompClient.onWebSocketError = (error) => {
+        console.error('Error with websocket', error);
+    };
+
+    // stomp error handler
+    stompClient.onStompError = (frame) => {
+        console.error('Broker reported error: ' + frame.headers['message']);
+        console.error('Additional details: ' + frame.body);
+    };
+
+    // 연결 UI
+    function setConnected(connected) {
+        $("#connect").prop("disabled", connected);
+        $("#disconnect").prop("disabled", !connected);
+        if (connected) {
+            $("#conversation").show();
+        }
+        else {
+            $("#conversation").hide();
+        }
+        $("#messages").html("");
+    }
+
+    // 연결 활성화
+    function connect() {
+        stompClient.activate();
+        console.log("연결");
+    }
+
+    // 연결 비활성화
+    function disconnect() {
+        stompClient.deactivate();
+        setConnected(false);
+        console.log("연결해제");
+    }
+
+    function sendMessage() {
+        stompClient.publish({
+            destination: "/",
+            body: JSON.stringify({'content': $("#content").val()})
+        });
+    }
+
+    function showChatMessage(message) {
+        $("#messages").append("<tr><td>" + message + "</td></tr>");
+    }
+
+    $(function () {
+        $("form").on('submit', (e) => e.preventDefault());
+        $( "#connect" ).click(() => connect());
+        $( "#disconnect" ).click(() => disconnect());
+        $( "#send" ).click(() => sendMessage());
+    });
+</script>
+</body>
+</html>
