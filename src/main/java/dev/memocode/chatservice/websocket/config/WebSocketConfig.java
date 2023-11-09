@@ -12,7 +12,16 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
-        config.enableSimpleBroker("/");
+        /**
+         * prefix가 /topic, /queue 둘 중에 하나는 등록을 시켜야 함
+         */
+        config.enableStompBrokerRelay("/topic")
+                .setRelayHost("localhost") // host
+                .setRelayPort(61613) // rabbitmq stomp port number
+                .setClientLogin("admin") // 사용자가 사용하는 아이디
+                .setClientPasscode("admin") // 사용자가 사용하는 비밀번호
+                .setSystemLogin("admin") // 서버가 사용하는 아이디
+                .setSystemPasscode("admin"); // 서버가 사용하는 비밀번호
     }
 
     @Override
